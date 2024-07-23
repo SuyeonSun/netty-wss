@@ -1,5 +1,7 @@
 package org.example;
 
+import javax.net.ssl.SSLEngine;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -46,7 +48,8 @@ public class WebSocketServer {
 					protected void initChannel(SocketChannel ch) throws Exception {
 						ChannelPipeline pipeline = ch.pipeline();
 						if (sslContext != null) {
-							pipeline.addLast(sslContext.newHandler(ch.alloc())); // SSL 핸들러 추가하여 보안 연결 담당
+							SSLEngine sslEngine = sslContext.newEngine(ch.alloc());
+							pipeline.addLast(new CustomSslHandler(sslEngine)); // SSL 핸들러 추가하여 보안 연결 담당
 						}
 						pipeline.addLast(new HttpServerCodec()); // HTTP 요청 인코딩 및 디코딩
 						pipeline.addLast(new HttpObjectAggregator(65536));
